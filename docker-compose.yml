@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  # docker run -dt -p 7999:7999 --name pushpin --rm fanout/pushpin
+  realtime:
+    image: fanout/pushpin
+    ports:
+      - 7999:7999
+      - 5561:5561
+    depends_on:
+      - app
+
+  api:
+    image: node:carbon-alpine
+    user: node
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    command: node_modules/.bin/json-server --host '0.0.0.0' db.js
+
+  app:
+    image: node:carbon-alpine
+    user: node
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    command: yarn start
